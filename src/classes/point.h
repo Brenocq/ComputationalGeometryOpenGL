@@ -15,6 +15,7 @@ public:
   void setX(float _x);
   void setY(float _y);
   void setZ(float _z);
+  void setColor(float r, float g, float b);
   //----- Getters -----//
   float x();
   float y();

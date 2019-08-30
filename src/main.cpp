@@ -5,6 +5,7 @@
 #include <string>
 
 #include "classes/container.h"
+#include "classes/convexHull.h"
 using namespace std;
 
 //----- Window Parameters -----//
@@ -14,9 +15,8 @@ using namespace std;
 #define screenWidth 1920
 
 //----- Objects -----//
-Container c;
-
-//----- Variables -----//
+Container container;
+ConvexHull convexHull;
 
 //----- Glut functions -----//
 void draw();
@@ -24,6 +24,7 @@ void timer(int);
 void mouse(int button, int state, int x, int y);
 
 int main(int argc, char** argv){
+  convexHull.setPoints(&container);
   //----- Create window -----//
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -43,13 +44,15 @@ void draw(){
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
 
-  c.draw2D();
+  container.draw2D();
+  convexHull.run();
 
   glutSwapBuffers();
 }
 
 void timer(int){
   glutPostRedisplay();
+
   glutTimerFunc(1000/60, timer, 0);// Call timer function as fast as possible
 }
 
@@ -60,6 +63,6 @@ void mouse(int button, int state, int x, int y)
     float mouseX, mouseY;
     mouseX = 2*((float(x)/windowWidth)-0.5);
     mouseY = -2*((float(y)/windowHeight)-0.5);
-    c.addPoint(mouseX,mouseY);
+    container.addPoint(mouseX,mouseY);
   }
 }

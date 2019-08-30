@@ -10,11 +10,12 @@ public:
 
   void addPoint(float x, float y, float z=0);
   void cleanPoints();
-  vector<Point> getPoints();
+  vector<Point*> getPoints();
+  bool isEmpty();
 
   void draw2D();
 private:
-  vector<Point> points;
+  vector<Point*> points;
 };
 
 

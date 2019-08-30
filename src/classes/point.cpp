@@ -36,6 +36,9 @@ void Point::setPoint(float _x, float _y, float _z){
 void Point::setX(float _x){cord[0]=_x;}
 void Point::setY(float _y){cord[1]=_y;}
 void Point::setZ(float _z){cord[2]=_z;}
+void Point::setColor(float r, float g, float b){
+  color = {r,g,b};
+}
 //----- Getters -----//
 float Point::x(){return cord[0];}
 float Point::y(){return cord[1];}
