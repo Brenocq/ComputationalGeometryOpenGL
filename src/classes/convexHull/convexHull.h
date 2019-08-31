@@ -1,7 +1,7 @@
 #ifndef CONVEXHULL_H
 #define CONVEXHULL_H
 #include <vector>
-#include "container.h"
+#include "../container.h"
 
 class ConvexHull{
 public:
@@ -9,9 +9,9 @@ public:
   ~ConvexHull();
 
   void setPoints(Container *container);
-  void run();
+  virtual vector<Point*> run() = 0;
 
-private:
+protected:
   Container *_container;
 };
 

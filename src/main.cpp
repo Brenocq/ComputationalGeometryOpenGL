@@ -5,7 +5,8 @@
 #include <string>
 
 #include "classes/container.h"
-#include "classes/convexHull.h"
+#include "classes/convexHull/convexHull.h"
+#include "classes/convexHull/graham.h"
 using namespace std;
 
 //----- Window Parameters -----//
@@ -16,7 +17,7 @@ using namespace std;
 
 //----- Objects -----//
 Container container;
-ConvexHull convexHull;
+ConvexHull *convexHullAlg = new Graham();
 
 //----- Glut functions -----//
 void draw();
@@ -24,7 +25,7 @@ void timer(int);
 void mouse(int button, int state, int x, int y);
 
 int main(int argc, char** argv){
-  convexHull.setPoints(&container);
+  convexHullAlg->setPoints(&container);
   //----- Create window -----//
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -45,7 +46,7 @@ void draw(){
   glLoadIdentity();
 
   container.draw2D();
-  convexHull.run();
+  convexHullAlg->run();
 
   glutSwapBuffers();
 }

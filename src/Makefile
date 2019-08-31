@@ -1,23 +1,27 @@
-flags = -Wall -lglut -lGLU -lGL -std=c++11
+Flags = -Wall -lglut -lGLU -lGL -std=c++11
+Objects = point.o utils.o container.o convexHull.o graham.o
 
 all: build
 
-build: point.o utils.o container.o convexHull.o main.o
+build: $(Objects) main.o
 
 main.o: main.cpp
-	@g++ main.cpp $(flags) -o run  convexHull.o container.o point.o utils.o
+	@g++ main.cpp $(Flags) -o run $(Objects)
 
-convexHull.o: classes/convexHull.cpp classes/convexHull.h
-	@g++ classes/convexHull.cpp $(flags) -c
+graham.o: classes/convexHull/graham.cpp classes/convexHull/graham.h
+	@g++ classes/convexHull/graham.cpp $(Flags) -c
+
+convexHull.o: classes/convexHull/convexHull.cpp classes/convexHull/convexHull.h
+	@g++ classes/convexHull/convexHull.cpp $(Flags) -c
 
 container.o: classes/container.cpp classes/container.h
-	@g++ classes/container.cpp $(flags) -c
+	@g++ classes/container.cpp $(Flags) -c
 
 utils.o: classes/utils.cpp classes/utils.h
-	@g++ classes/utils.cpp $(flags) -c
+	@g++ classes/utils.cpp $(Flags) -c
 
 point.o: classes/point.cpp classes/point.h
-	@g++ classes/point.cpp $(flags) -c
+	@g++ classes/point.cpp $(Flags) -c
 
 clean:
 	@rm run *.o
