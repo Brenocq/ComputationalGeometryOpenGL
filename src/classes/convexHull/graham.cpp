@@ -17,10 +17,6 @@ Graham::~Graham()
 {}
 
 vector<Point*> Graham::run(){
-  Point* firstPoint;
-  vector<Point*> sortedPoints;
-  vector<Point*> convexHull;
-
   if(_container->isEmpty()){
     return convexHull;
   }
@@ -33,9 +29,6 @@ vector<Point*> Graham::run(){
 
   //----- Find convex hull -----//
   convexHull = findConvexHull(sortedPoints);
-
-  //----- Color points and draw lines -----//
-  colorPoints(firstPoint, sortedPoints, convexHull);
 
   return convexHull;
 }
@@ -105,14 +98,16 @@ vector<Point*> Graham::findConvexHull(vector<Point*> sortedPoints){
   return convexHull;
 }
 
-void Graham::colorPoints(Point* firstPoint, vector<Point*> sortedPoints, vector<Point*> convexHull){
-  // Set all points as black
-  for(auto point : _container->getPoints()){
+void Graham::draw(){
+    if(firstPoint==NULL || sortedPoints.size()==0 || convexHull.size()==0)
+        return;
+    // Set all points as black
+    for(auto point : _container->getPoints()){
     point->setColor(0,0,0);
-  }
+    }
 
-  //----- Sorted points lines -----//
-  if(sortedPoints.size()>2){
+    //----- Sorted points lines -----//
+    if(sortedPoints.size()>2){
     glLineWidth(1);
     glColor3f(1.0, 0.0, 0.0);
     for (unsigned int i = 1; i < sortedPoints.size(); i++) {
@@ -121,10 +116,10 @@ void Graham::colorPoints(Point* firstPoint, vector<Point*> sortedPoints, vector<
       glVertex3f(sortedPoints[i-1]->x(), sortedPoints[i-1]->y(), 0.0);
       glEnd();
     }
-  }
+    }
 
-  //----- Convex hull lines and points -----//
-  if(convexHull.size()>1){
+    //----- Convex hull lines and points -----//
+    if(convexHull.size()>1){
     glLineWidth(2);
     glColor3f(0.0, 0.0, 1.0);
     for (unsigned int i = 1; i < convexHull.size(); i++) {
@@ -138,9 +133,8 @@ void Graham::colorPoints(Point* firstPoint, vector<Point*> sortedPoints, vector<
     glVertex3f(convexHull.back()->x(), convexHull.back()->y(), 0.0);
     glVertex3f(convexHull.front()->x(), convexHull.front()->y(), 0.0);
     glEnd();
-  }
+    }
 
-
-  //----- First point -----//
-  firstPoint->setColor(1,0,0);
+    //----- First point -----//
+    firstPoint->setColor(1,0,0);
 }

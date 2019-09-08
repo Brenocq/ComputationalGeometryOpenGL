@@ -1,5 +1,5 @@
-#ifndef GRAHAM_H
-#define GRAHAM_H
+#ifndef QUICKHULL_H
+#define QUICKHULL_H
 #include <vector>
 #include "convexHull.h"
 
@@ -9,7 +9,9 @@ public:
   ~QuickHull();
 
   vector<Point*> run();
+  void draw();
+
   bool pointInsideTriangle(Point* t1, Point* t2, Point* t3, Point* p);
 };
 
-#endif// GRAHAM_H
+#endif// QUICKHULL_H

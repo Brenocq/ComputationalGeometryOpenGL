@@ -7,6 +7,7 @@
 #include "classes/container.h"
 #include "classes/convexHull/convexHull.h"
 #include "classes/convexHull/graham.h"
+#include "classes/convexHull/quickHull.h"
 using namespace std;
 
 //----- Window Parameters -----//
@@ -14,6 +15,10 @@ using namespace std;
 #define windowWidth 600
 #define screenHeight 1080
 #define screenWidth 1920
+
+//----- Algorithms -----//
+#define GRAHAM_2D 0
+#define QUICKHULL_2D 1
 
 //----- Objects -----//
 Container container;
@@ -23,6 +28,9 @@ ConvexHull *convexHullAlg = new Graham();
 void draw();
 void timer(int);
 void mouse(int button, int state, int x, int y);
+void menuInit();
+void mainMenuHandler(int choice){}
+void convexHullMenuHandler(int choice);
 
 int main(int argc, char** argv){
   convexHullAlg->setPoints(&container);
@@ -33,7 +41,9 @@ int main(int argc, char** argv){
   glutInitWindowPosition((screenWidth/2)-(windowWidth/2), (screenWidth/2)-(windowHeight/2));
   glutCreateWindow("Computational Geometry Problems");
   glClearColor(1.0, 1.0, 1.0, 1.0);// Clear window
-  glutMouseFunc(mouse);
+  //----- Handles -----//
+  menuInit();// Create menu options
+  glutMouseFunc(mouse);// Allow to add points
   glutDisplayFunc(draw);// Set the draw function
   glutTimerFunc(0, timer, 0);// Define timer function (loop function)
   glutMainLoop();
@@ -41,19 +51,53 @@ int main(int argc, char** argv){
   return 0;
 }
 
+void menuInit(){
+    // Create the menu options
+    int convexHullSubMenu = glutCreateMenu(convexHullMenuHandler);
+    glutAddMenuEntry("Graham 2D", GRAHAM_2D);
+    glutAddMenuEntry("QuickHull 2D", QUICKHULL_2D);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+
+    glutCreateMenu(mainMenuHandler);
+    glutAddSubMenu("ConvexHull", convexHullSubMenu);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+
+    cout<<"Welcome! You can left-click to add points or right-click to select another algorithm.\n";
+    cout<<"Graham 2D selected\n";
+}
+
+void convexHullMenuHandler(int choice) {
+    // Define what will do on each menu option
+	switch(choice) {
+		case GRAHAM_2D:
+			cout<<"Graham 2D selected\n";
+            container.cleanPoints();
+            convexHullAlg = new Graham();
+            convexHullAlg->setPoints(&container);
+			break;
+
+		case QUICKHULL_2D:
+			cout<<"QuickHull 2D selected\n";
+            container.cleanPoints();
+            convexHullAlg = new QuickHull();
+            convexHullAlg->setPoints(&container);
+			break;
+	}
+}
+
 void draw(){
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
 
+  convexHullAlg->draw();
   container.draw2D();
-  convexHullAlg->run();
 
   glutSwapBuffers();
 }
 
 void timer(int){
   glutPostRedisplay();
-
+  convexHullAlg->run();
   glutTimerFunc(1000/60, timer, 0);// Call timer function as fast as possible
 }
 

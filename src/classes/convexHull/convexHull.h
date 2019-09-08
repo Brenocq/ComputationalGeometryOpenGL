@@ -10,6 +10,7 @@ public:
 
   void setPoints(Container *container);
   virtual vector<Point*> run() = 0;
+  virtual void draw() = 0;
 
 protected:
   Container *_container;

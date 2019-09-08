@@ -17,5 +17,13 @@ QuickHull::~QuickHull()
 {}
 
 vector<Point*> QuickHull::run(){
+    vector<Point*> convexHull;
+
+
+
+    return convexHull;
+}
+
+void QuickHull::draw(){
 
 }
