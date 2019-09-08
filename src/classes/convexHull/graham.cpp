@@ -43,10 +43,16 @@ vector<Point*> Graham::run(){
 Point* Graham::getFirstPoint(){
   Point* firstPoint = _container->getPoints()[0];
 
+  // What happens if you replace “rightmost lowest point”by ¨a point in the interior of the convex hull?
+  // Comment the for loop
   for(auto point : _container->getPoints()){
+    // What happens if you replace “lowest”by ”highest”?
+    // if(point->y()>=firstPoint->y()){
     if(point->y()<=firstPoint->y()){
       if(point->y()==firstPoint->y()){
         firstPoint = point->x()<firstPoint->x() ? point : firstPoint;
+        // What happens if you replace “strictly left” by left”?
+        // firstPoint = point->x()<=firstPoint->x() ? point : firstPoint;
       }else{
         firstPoint = point;
       }
