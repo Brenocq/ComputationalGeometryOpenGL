@@ -12,8 +12,10 @@ public:
   void draw();
 
   Point* getFirstPoint();
-  vector<Point*> getSortedPoints(Point* firstPoint);
-  vector<Point*> findConvexHull(vector<Point*> sortedPoints);
+  vector<Point*> getSortedPoints();
+  vector<Point*> findConvexHull();
+
+  Point* pointInsideConvexHull();
 private:
     Point* firstPoint;
     vector<Point*> sortedPoints;

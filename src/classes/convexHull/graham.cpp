@@ -25,10 +25,10 @@ vector<Point*> Graham::run(){
   firstPoint = getFirstPoint();
 
   //----- Sort by angle -----//
-  sortedPoints = getSortedPoints(firstPoint);
+  sortedPoints = getSortedPoints();
 
   //----- Find convex hull -----//
-  convexHull = findConvexHull(sortedPoints);
+  convexHull = findConvexHull();
 
   return convexHull;
 }
@@ -36,10 +36,8 @@ vector<Point*> Graham::run(){
 Point* Graham::getFirstPoint(){
   Point* firstPoint = _container->getPoints()[0];
 
-  // What happens if you replace “rightmost lowest point”by ¨a point in the interior of the convex hull?
-  // Comment the for loop
   for(auto point : _container->getPoints()){
-    // What happens if you replace “lowest”by ”highest”?
+    // What happens if you replace “lowest” by ”highest”?
     // if(point->y()>=firstPoint->y()){
     if(point->y()<=firstPoint->y()){
       if(point->y()==firstPoint->y()){
@@ -51,35 +49,37 @@ Point* Graham::getFirstPoint(){
       }
     }
   }
+
+  // What happens if you replace “rightmost lowest point” by “a point in the interior of the convex hull”?
+  // firstPoint = pointInsideConvexHull();
+
   return firstPoint;
 }
 
-vector<Point*> Graham::getSortedPoints(Point* firstPoint){
+vector<Point*> Graham::getSortedPoints(){
     vector<pair<float,Point*>> sortedAngles;
     vector<Point*> sortedPoints;
 
     for(auto point : _container->getPoints()){
         float angle = atan2(firstPoint->y()-point->y(),(firstPoint->x()-point->x()));
-        if(firstPoint->y()==point->y() && firstPoint->x()<point->x()){
-          angle*=-1;
+        if(point!=firstPoint){
+            sortedAngles.push_back(make_pair(angle, point));
         }
-        sortedAngles.push_back(make_pair(angle, point));
     }
     sort(sortedAngles.begin(), sortedAngles.end());
 
-    sortedPoints.push_back(firstPoint);
     for(auto pointPair : sortedAngles){
       sortedPoints.push_back(pointPair.second);
     }
     return sortedPoints;
 }
 
-vector<Point*> Graham::findConvexHull(vector<Point*> sortedPoints){
+vector<Point*> Graham::findConvexHull(){
   vector<Point*> convexHull;
-  if(sortedPoints.size()>=3){
-    convexHull.push_back(sortedPoints[0]);// firstPoint
-    convexHull.push_back(sortedPoints[1]);
-    for(unsigned int i=2; i<sortedPoints.size(); i++){
+  if(sortedPoints.size()>=1){
+    convexHull.push_back(firstPoint);// firstPoint
+    convexHull.push_back(sortedPoints[0]);
+    for(unsigned int i=1; i<sortedPoints.size(); i++){
       float cp = utils::crossProduct(convexHull[convexHull.size()-2], convexHull[convexHull.size()-1], sortedPoints[i]);
       if(cp==0){
         convexHull.pop_back();
@@ -137,4 +137,40 @@ void Graham::draw(){
 
     //----- First point -----//
     firstPoint->setColor(1,0,0);
+}
+
+Point* Graham::pointInsideConvexHull(){
+    Point* result;
+    if(_container->getPoints().size()>3){
+        for(auto point : _container->getPoints()){
+          // What happens if you replace “lowest”by ”highest”?
+          // if(point->y()>=firstPoint->y()){
+          if(point->y()<=firstPoint->y()){
+            if(point->y()==firstPoint->y()){
+              firstPoint = point->x()<firstPoint->x() ? point : firstPoint;
+              // What happens if you replace “strictly left” by left”?
+              // firstPoint = point->x()<=firstPoint->x() ? point : firstPoint;
+            }else{
+              firstPoint = point;
+            }
+          }
+        }
+
+        sortedPoints = getSortedPoints();
+        convexHull = findConvexHull();
+    }
+
+    for(auto point : _container->getPoints()){
+        result = point;
+        bool inTheConvexHull = false;
+        for(auto pointHull : convexHull){
+            if(pointHull == point){
+                inTheConvexHull = true;
+            }
+        }
+        if(inTheConvexHull==false){
+            return result;
+        }
+    }
+    return _container->getPoints()[0];// All points belong to the convex hull
 }

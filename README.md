@@ -23,7 +23,7 @@ Some questions proposed by Phan Thanh An:
 
 3. What happens if you replace “rightmost lowest point” by “a point in the interior of the convex hull”?
 
-  The Convex Hull formed by the algorithm will not be correct because it will have a point (the initial) that will not belong to the true Convex Hull.
+  The "Convex Hull" formed by the algorithm will not be correct because it will have a point (the initial) that will not belong to the true Convex Hull.
 
   <p align="center">
   <img src="https://raw.githubusercontent.com/Brenocq/ComputationalGeometryOpenGL/master/img/ConvexHullGrahamPointInside.png" height=200></img>
