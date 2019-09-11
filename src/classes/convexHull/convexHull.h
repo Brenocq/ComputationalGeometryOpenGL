@@ -14,6 +14,7 @@ public:
 
 protected:
   Container *_container;
+  vector<Point*> convexHull;
 };
 
 #endif// CONVEXHULL_H

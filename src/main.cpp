@@ -71,14 +71,14 @@ void convexHullMenuHandler(int choice) {
 	switch(choice) {
 		case GRAHAM_2D:
 			cout<<"Graham 2D selected\n";
-            container.cleanPoints();
+            //container.cleanPoints();
             convexHullAlg = new Graham();
             convexHullAlg->setPoints(&container);
 			break;
 
 		case QUICKHULL_2D:
 			cout<<"QuickHull 2D selected\n";
-            container.cleanPoints();
+            //container.cleanPoints();
             convexHullAlg = new QuickHull();
             convexHullAlg->setPoints(&container);
 			break;

@@ -19,7 +19,6 @@ public:
 private:
     Point* firstPoint;
     vector<Point*> sortedPoints;
-    vector<Point*> convexHull;
 };
 
 #endif// GRAHAM_H
