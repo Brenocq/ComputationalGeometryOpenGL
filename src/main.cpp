@@ -7,7 +7,8 @@
 #include "classes/container.h"
 #include "classes/convexHull/convexHull.h"
 #include "classes/convexHull/graham.h"
-#include "classes/convexHull/quickHull.h"
+#include "classes/convexHull/quickHull2D.h"
+#include "classes/convexHull/quickHull4D.h"
 using namespace std;
 
 //----- Window Parameters -----//
@@ -19,6 +20,7 @@ using namespace std;
 //----- Algorithms -----//
 #define GRAHAM_2D 0
 #define QUICKHULL_2D 1
+#define QUICKHULL_4D 2
 
 //----- Objects -----//
 Container container;
@@ -56,6 +58,7 @@ void menuInit(){
     int convexHullSubMenu = glutCreateMenu(convexHullMenuHandler);
     glutAddMenuEntry("Graham 2D", GRAHAM_2D);
     glutAddMenuEntry("QuickHull 2D", QUICKHULL_2D);
+    glutAddMenuEntry("QuickHull 4D", QUICKHULL_4D);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     glutCreateMenu(mainMenuHandler);
@@ -71,17 +74,22 @@ void convexHullMenuHandler(int choice) {
 	switch(choice) {
 		case GRAHAM_2D:
 			cout<<"Graham 2D selected\n";
-            //container.cleanPoints();
-            convexHullAlg = new Graham();
-            convexHullAlg->setPoints(&container);
+      //container.cleanPoints();
+      convexHullAlg = new Graham();
+      convexHullAlg->setPoints(&container);
 			break;
-
 		case QUICKHULL_2D:
 			cout<<"QuickHull 2D selected\n";
-            //container.cleanPoints();
-            convexHullAlg = new QuickHull();
-            convexHullAlg->setPoints(&container);
+      //container.cleanPoints();
+      convexHullAlg = new QuickHull2D();
+      convexHullAlg->setPoints(&container);
 			break;
+    case QUICKHULL_4D:
+      cout<<"QuickHull 4D selected\n";
+      //container.cleanPoints();
+      convexHullAlg = new QuickHull4D();
+      convexHullAlg->setPoints(&container);
+    break;
 	}
 }
 

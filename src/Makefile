@@ -1,5 +1,5 @@
 Flags = -Wall -lglut -lGLU -lGL -std=c++11
-Objects = point.o utils.o container.o convexHull.o graham.o quickHull.o
+Objects = point.o utils.o container.o convexHull.o graham.o quickHull2D.o quickHull4D.o
 
 all: build
 
@@ -8,8 +8,11 @@ build: $(Objects) main.o
 main.o: main.cpp
 	@g++ main.cpp $(Flags) -o run $(Objects)
 
-quickHull.o: classes/convexHull/quickHull.cpp classes/convexHull/quickHull.h
-	@g++ classes/convexHull/quickHull.cpp $(Flags) -c
+quickHull4D.o: classes/convexHull/quickHull4D.cpp classes/convexHull/quickHull4D.h
+	@g++ classes/convexHull/quickHull4D.cpp $(Flags) -c
+
+quickHull2D.o: classes/convexHull/quickHull2D.cpp classes/convexHull/quickHull2D.h
+	@g++ classes/convexHull/quickHull2D.cpp $(Flags) -c
 
 graham.o: classes/convexHull/graham.cpp classes/convexHull/graham.h
 	@g++ classes/convexHull/graham.cpp $(Flags) -c

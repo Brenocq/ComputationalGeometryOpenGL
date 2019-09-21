@@ -1,4 +1,4 @@
-#include "quickHull.h"
+#include "quickHull4D.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,40 +9,54 @@
 #include <algorithm>
 #include "../utils.h"
 
-QuickHull::QuickHull():
+QuickHull4D::QuickHull4D():
 ConvexHull()
 {}
 
-QuickHull::~QuickHull()
+QuickHull4D::~QuickHull4D()
 {}
 
-vector<Point*> QuickHull::run(){
-    vector<Point*> S1, S2;
-    Point *leftMost, *rightMost;
+vector<Point*> QuickHull4D::run(){
+    vector<Point*> S1, S2, S3, S4;
+    Point *p[4];// Maximum or minimum points (belong to the convexHull)
     convexHull.clear();
 
-    if(_container->getPoints().size()<2)
+    if(_container->getPoints().size()<4)
         return convexHull;
 
     //----- Find left and right most points -----//
-    leftMost = _container->getPoints()[0];
-    rightMost = _container->getPoints()[0];
+    p[0] = _container->getPoints()[0];
+    p[1] = _container->getPoints()[0];
+    p[2] = _container->getPoints()[0];
+    p[3] = _container->getPoints()[0];
     for(auto point : _container->getPoints()){
-        if(point->x()<leftMost->x())
-            leftMost = point;
-        else if(point->x()>rightMost->x())
-            rightMost = point;
+        if(point->x()<p[0]->x())
+            p[0] = point;
+        if(point->x()>p[1]->x())
+            p[1] = point;
+        if(point->y()<p[2]->y())
+            p[2] = point;
+        if(point->y()>p[3]->y())
+            p[3] = point;
     }
-    convexHull.push_back(leftMost);
-    convexHull.push_back(rightMost);
-    firstPointsA = leftMost;// To draw
-    firstPointsB = rightMost;// To draw
+    for(auto pointA : p){
+      int qtdEqual = 0;
+      for(auto pointB : p){
+        if(pointA==pointB)
+          qtdEqual++;
+      }
+      if(qtdEqual>1)
+        cout<<"[Warning] Same initial point on the QuickHull4D algorithm.\n";
+    }
+
+    for(auto point : p){
+      convexHull.push_back(point);
+      firstPoints.push_back(point);// To draw
+    }
 
     //----- Divide points in two subsets -----//
-
     for(auto point : _container->getPoints()){
-        float position = (rightMost->x() - leftMost->x()) * (point->y() - leftMost->y()) -
-                        (rightMost->y() - leftMost->y()) * (point->x() - leftMost->x());
+        float position = hyperVolume(firstPoints[0], firstPoints[1], firstPoints[2], firstPoints[3], point);
         // On the line or to one side
         if(position>0){
             S1.push_back(point);
@@ -50,17 +64,17 @@ vector<Point*> QuickHull::run(){
             S2.push_back(point);
         }
     }
-    //----- Divide points in two subsets -----//
 
-    findHull(S1, leftMost, rightMost);
-    findHull(S2, rightMost, leftMost);
+    //----- Divide points in for subsets -----//
+    findHull(S1, p[0], p[1], p[2], p[3]);
+    findHull(S2, p[3], p[2], p[1], p[0]);
 
     return convexHull;
 }
 
-void QuickHull::findHull(vector<Point*> points, Point* P, Point* Q){
+void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, Point* S){
     Point* C;
-    vector<Point*> S1, S2;
+    vector<Point*> S1, S2, S3, S4;
     if(points.size()==0)
         return;
 
@@ -69,7 +83,8 @@ void QuickHull::findHull(vector<Point*> points, Point* P, Point* Q){
     farthestPoint.second = points[0];
 
     //---- Find farthest point to the line ----//
-    for(auto point : points){
+    // TODO calculate distance to hyperPlane
+    /*for(auto point : points){
          // Calculate distance
          float a,b,c, dist;
          a = P->y() - Q->y();
@@ -104,11 +119,11 @@ void QuickHull::findHull(vector<Point*> points, Point* P, Point* Q){
         }
     }
     findHull(S1, P, C);
-    findHull(S2, C, Q);
+    findHull(S2, C, Q);*/
 }
 
-void QuickHull::draw(){
-    if(convexHull.size()<2)
+void QuickHull4D::draw(){
+    /*if(convexHull.size()<2)
         return;
 
     // Set all points as black
@@ -137,11 +152,11 @@ void QuickHull::draw(){
 
     //----- First points -----//
     firstPointsA->setColor(1,0,0);
-    firstPointsB->setColor(1,0,0);
+    firstPointsB->setColor(1,0,0);*/
 }
 
-void QuickHull::sortConvexHull(){
-    vector<pair<float,Point*>> sortedAngles;
+void QuickHull4D::sortConvexHull(){
+    /*vector<pair<float,Point*>> sortedAngles;
     vector<Point*> sortedPoints;
 
     for(auto point : convexHull){
@@ -153,5 +168,54 @@ void QuickHull::sortConvexHull(){
     convexHull.clear();
     for(auto pointPair : sortedAngles){
       convexHull.push_back(pointPair.second);
-    }
+    }*/
+}
+
+float QuickHull4D::hyperVolume(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5){
+  float det;
+  float matrix[5][5];
+  for(int i=0;i<4;i++){
+    matrix[i][0] = t1->getCord()[i];
+    matrix[i][1] = t2->getCord()[i];
+    matrix[i][2] = t3->getCord()[i];
+    matrix[i][3] = t4->getCord()[i];
+    matrix[i][4] = t5->getCord()[i];
+  }
+  for(int i=0;i<5;i++){
+    matrix[4][i] = 1;
+  }
+  // | p1x p2x p3x p4x p5x |
+  // | p1y p2y p3y p4y p5y |
+  // | p1z p2z p3z p4z p5z |
+  // | p1w p2w p3w p4w p5w |
+  // |  1   1   1   1   1  |
+
+  // Determinant calculation
+  det = determinant(matrix, 5);
+
+  return 1/24 * det;// 4! = 24
+}
+
+float QuickHull4D::determinant(float matrix[5][5], int n) {
+   float det = 0;
+   float submatrix[5][5];
+   if (n == 2)
+      return ((matrix[0][0] * matrix[1][1]) - (matrix[1][0] * matrix[0][1]));
+   else {
+      for (int x = 0; x < n; x++) {
+            int subi = 0;
+            for (int i = 1; i < n; i++) {
+               int subj = 0;
+               for (int j = 0; j < n; j++) {
+                  if (j == x)
+                  continue;
+                  submatrix[subi][subj] = matrix[i][j];
+                  subj++;
+               }
+               subi++;
+            }
+            det = det + (pow(-1, x) * matrix[0][x] * determinant( submatrix, n - 1 ));
+      }
+   }
+   return det;
 }

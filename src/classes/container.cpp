@@ -5,8 +5,8 @@ Container::Container(){
 }
 Container::~Container(){}
 
-void Container::addPoint(float x, float y, float z){
-  Point *p = new Point(x,y,z);
+void Container::addPoint(float x, float y, float z, float w){
+  Point *p = new Point(x,y,z,w);
   points.push_back(p);
 }
 

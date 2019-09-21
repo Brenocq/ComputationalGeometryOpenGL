@@ -8,7 +8,7 @@ public:
   Container();
   ~Container();
 
-  void addPoint(float x, float y, float z=0);
+  void addPoint(float x, float y, float z=0, float w=0);
   void cleanPoints();
   vector<Point*> getPoints();
   bool isEmpty();
