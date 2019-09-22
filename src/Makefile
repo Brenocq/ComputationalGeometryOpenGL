@@ -1,5 +1,5 @@
 Flags = -Wall -lglut -lGLU -lGL -std=c++11
-Objects = point.o utils.o container.o convexHull.o graham.o quickHull2D.o quickHull4D.o
+Objects = point.o utils.o container.o convexHull.o graham.o quickHull2D.o quickHull4D.o triangulation.o earClipping.o edgeFlip.o
 
 all: build
 
@@ -7,6 +7,15 @@ build: $(Objects) main.o
 
 main.o: main.cpp
 	@g++ main.cpp $(Flags) -o run $(Objects)
+
+edgeFlip.o: classes/triangulation/edgeFlip.cpp classes/triangulation/edgeFlip.h
+	@g++ classes/triangulation/edgeFlip.cpp $(Flags) -c
+
+earClipping.o: classes/triangulation/earClipping.cpp classes/triangulation/earClipping.h
+	@g++ classes/triangulation/earClipping.cpp $(Flags) -c
+
+triangulation.o: classes/triangulation/triangulation.cpp classes/triangulation/triangulation.h
+	@g++ classes/triangulation/triangulation.cpp $(Flags) -c
 
 quickHull4D.o: classes/convexHull/quickHull4D.cpp classes/convexHull/quickHull4D.h
 	@g++ classes/convexHull/quickHull4D.cpp $(Flags) -c

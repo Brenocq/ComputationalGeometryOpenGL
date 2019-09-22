@@ -108,14 +108,14 @@ void Graham::draw(){
 
     //----- Sorted points lines -----//
     if(sortedPoints.size()>2){
-    glLineWidth(1);
-    glColor3f(1.0, 0.0, 0.0);
-    for (unsigned int i = 1; i < sortedPoints.size(); i++) {
-      glBegin(GL_LINES);
-      glVertex3f(sortedPoints[i]->x(), sortedPoints[i]->y(), 0.0);
-      glVertex3f(sortedPoints[i-1]->x(), sortedPoints[i-1]->y(), 0.0);
-      glEnd();
-    }
+      glLineWidth(1);
+      glColor3f(1.0, 0.0, 0.0);
+      for (unsigned int i = 1; i < sortedPoints.size(); i++) {
+        glBegin(GL_LINES);
+        glVertex3f(sortedPoints[i]->x(), sortedPoints[i]->y(), 0.0);
+        glVertex3f(sortedPoints[i-1]->x(), sortedPoints[i-1]->y(), 0.0);
+        glEnd();
+      }
     }
 
     //----- Convex hull lines and points -----//
