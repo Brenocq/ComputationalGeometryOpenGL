@@ -24,7 +24,7 @@ vector<Point*> QuickHull4D::run(){
     if(_container->getPoints().size()<4)
         return convexHull;
 
-    //----- Find left and right most points -----//
+    //----- Find min/max points ("left most", "right most")-----//
     p[0] = _container->getPoints()[0];
     p[1] = _container->getPoints()[0];
     p[2] = _container->getPoints()[0];
@@ -58,9 +58,9 @@ vector<Point*> QuickHull4D::run(){
     for(auto point : _container->getPoints()){
         float position = hyperVolume(firstPoints[0], firstPoints[1], firstPoints[2], firstPoints[3], point);
         // On the line or to one side
-        if(position>0){
+        if(position>0 && abs(position)>0.001){
             S1.push_back(point);
-        }else if(position<0){
+        }else if(position<0 && abs(position)>0.001){
             S2.push_back(point);
         }
     }
@@ -75,6 +75,20 @@ vector<Point*> QuickHull4D::run(){
 void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, Point* S){
     Point* C;
     vector<Point*> S1, S2, S3, S4;
+    cout<<"Qtd points: "<<points.size()<<endl;
+    cout<<"\t Plane point: ";
+    for (int i = 0; i < 4; i++)
+        cout<<(i==0?"(":"")<<P->getCord()[i]<<(i!=3?",":") ");
+    for (int i = 0; i < 4; i++)
+        cout<<(i==0?"(":"")<<Q->getCord()[i]<<(i!=3?",":") ");
+    for (int i = 0; i < 4; i++)
+        cout<<(i==0?"(":"")<<R->getCord()[i]<<(i!=3?",":") ");
+    for (int i = 0; i < 4; i++)
+        cout<<(i==0?"(":"")<<S->getCord()[i]<<(i!=3?",":")\n");
+    
+        
+    
+
     if(points.size()==0)
         return;
 
@@ -84,13 +98,13 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
 
     //---- Find farthest point to the line ----//
     // TODO calculate distance to hyperPlane
-    /*for(auto point : points){
+    for(auto point : points){
          // Calculate distance
-         float a,b,c, dist;
-         a = P->y() - Q->y();
-         b = Q->x() - P->x();
-         c = P->x() * Q->y() - Q->x() * P->y();
-         dist = abs(a * point->x() + b * point->y() + c) / sqrt(a * a + b * b);
+         float dist;
+         float volume4D = hyperVolume(P, Q, R, S, point);
+         float volume3D = volume(P, Q, R, S);
+         
+         dist = volume4D/volume3D;
 
          if(farthestPoint.first<dist){
              farthestPoint.second = point;
@@ -98,10 +112,12 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
 
          }
     }
+    cout<<"\tFarthest: "<<farthestPoint.first<<endl;
     C = farthestPoint.second;
     convexHull.push_back(C);
+    C->setColor(0,1,0);
     //---- Calculate subset 1 ----//
-    for(auto point : _container->getPoints()){
+    /*for(auto point : _container->getPoints()){
         float position = (C->x() - P->x()) * (point->y() - P->y()) -
                         (C->y() - P->y()) * (point->x() - P->x());
         // On the line or to one side
@@ -172,28 +188,51 @@ void QuickHull4D::sortConvexHull(){
 }
 
 float QuickHull4D::hyperVolume(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5){
-  float det;
-  float matrix[5][5];
-  for(int i=0;i<4;i++){
-    matrix[i][0] = t1->getCord()[i];
-    matrix[i][1] = t2->getCord()[i];
-    matrix[i][2] = t3->getCord()[i];
-    matrix[i][3] = t4->getCord()[i];
-    matrix[i][4] = t5->getCord()[i];
-  }
-  for(int i=0;i<5;i++){
-    matrix[4][i] = 1;
-  }
-  // | p1x p2x p3x p4x p5x |
-  // | p1y p2y p3y p4y p5y |
-  // | p1z p2z p3z p4z p5z |
-  // | p1w p2w p3w p4w p5w |
-  // |  1   1   1   1   1  |
+    float det;
+    float matrix[5][5];
+    for(int i=0;i<4;i++){
+        matrix[i][0] = t1->getCord()[i];
+        matrix[i][1] = t2->getCord()[i];
+        matrix[i][2] = t3->getCord()[i];
+        matrix[i][3] = t4->getCord()[i];
+        matrix[i][4] = t5->getCord()[i];
+    }
+    for(int i=0;i<5;i++){
+        matrix[4][i] = 1;
+    }
 
-  // Determinant calculation
-  det = determinant(matrix, 5);
+    // | p1x p2x p3x p4x p5x |
+    // | p1y p2y p3y p4y p5y |
+    // | p1z p2z p3z p4z p5z |
+    // | p1w p2w p3w p4w p5w |
+    // |  1   1   1   1   1  |
 
-  return 1/24 * det;// 4! = 24
+    // Determinant calculation
+    det = determinant(matrix, 5);
+    return 1.0f/24 * det;// 4! = 24
+}
+
+float QuickHull4D::volume(Point* t1, Point* t2, Point* t3, Point* t4){
+    float det;
+    float matrix[5][5];
+    for(int i=0;i<3;i++){
+        matrix[i][0] = t1->getCord()[i];
+        matrix[i][1] = t2->getCord()[i];
+        matrix[i][2] = t3->getCord()[i];
+        matrix[i][3] = t4->getCord()[i];
+    }
+    for(int i=0;i<4;i++){
+        matrix[3][i] = 1;
+    }
+    // | p1x p2x p3x p4x |
+    // | p1y p2y p3y p4y |
+    // | p1z p2z p3z p4z |
+    // |  1   1   1   1  |
+
+    // Determinant calculation
+    det = determinant(matrix, 4);
+
+    return 1.0f/6 * det;// 3! = 6
 }
 
 float QuickHull4D::determinant(float matrix[5][5], int n) {
