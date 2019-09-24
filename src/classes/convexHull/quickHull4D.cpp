@@ -85,9 +85,6 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
         cout<<(i==0?"(":"")<<R->getCord()[i]<<(i!=3?",":") ");
     for (int i = 0; i < 4; i++)
         cout<<(i==0?"(":"")<<S->getCord()[i]<<(i!=3?",":")\n");
-    
-        
-    
 
     if(points.size()==0)
         return;
@@ -104,7 +101,7 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
          float volume4D = hyperVolume(P, Q, R, S, point);
          float volume3D = volume(P, Q, R, S);
          
-         dist = volume4D/volume3D;
+         dist = volume4D/volume3D; //utils::
 
          if(farthestPoint.first<dist){
              farthestPoint.second = point;
@@ -212,6 +209,37 @@ float QuickHull4D::hyperVolume(Point* t1, Point* t2, Point* t3, Point* t4, Point
     return 1.0f/24 * det;// 4! = 24
 }
 
+//we could maybe genralize volume to Lebesgue measure
+
+float QuickHull4D::measure(std::vector<Point*>pointSet) {
+    float det;
+    float matrix[pointSet.size()][pointSet.size()];
+    
+    for(int i=0 ; i < pointSet.size() ; i++) {
+        for(int j = 0 ; i < pointSet.size() ; j++) {
+            matrix[i][j] = pointSet.at(j)->getCord()[i];
+        }
+    }
+    
+    for(int i=0;i<pointSet.size();i++){
+        matrix[pointSet.size()-1][i] = 1;
+    }
+
+    // | p1x p2x p3x p4x p5x |
+    // | p1y p2y p3y p4y p5y |
+    // | p1z p2z p3z p4z p5z |
+    // | p1w p2w p3w p4w p5w |
+    // |  1   1   1   1   1  |
+
+    // Determinant calculation
+    det = determinant(matrix, 5);
+    return (1.0f/utils::factorial(pointSet.size())) * det; // 1/n! * determinant
+    /*
+    As described in:
+    Vn = 1/n! * (H0*H1* ... Hn)
+    */
+}
+
 float QuickHull4D::volume(Point* t1, Point* t2, Point* t3, Point* t4){
     float det;
     float matrix[5][5];
@@ -257,4 +285,31 @@ float QuickHull4D::determinant(float matrix[5][5], int n) {
       }
    }
    return det;
+}
+
+bool QuickHull4D::pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5, Point* p) {
+    float baseVolume;
+    float volumes[5]; //Volumes w.r.t. the point p
+    
+    std::vector<Point*> pointSet;
+    std::vector<Point*> bufferSet;
+
+    pointSet.push_back(t5);
+    pointSet.push_back(t4);
+    pointSet.push_back(t3);
+    pointSet.push_back(t2);
+    pointSet.push_back(t1);
+
+    baseVolume = hyperVolume(t1, t2, t3, t4, t5);
+
+    for (int i = 0; i < 4; i++) {
+        bufferSet = pointSet; //Copying into bufferSet        
+        bufferSet.at(i) =  p;
+        volumes[i] = hyperVolume(bufferSet.at(0),
+                                 bufferSet.at(1),
+                                 bufferSet.at(2),
+                                 bufferSet.at(3),
+                                 bufferSet.at(4));
+    }
+
 }

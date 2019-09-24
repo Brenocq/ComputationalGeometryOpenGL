@@ -33,3 +33,48 @@ float utils::pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3){
 
   return !(has_neg && has_pos);
 }
+
+bool utils::checkSum(float sum, std::vector<float> vals) {
+    //Maybe we should set and epsilon due to floating point inaccuracies
+    float epsilon = 0;
+    float buffer = 0;
+
+    for ( std::size_t i = 0; i < vals.size(); i++ ){
+	       buffer += vals[i];
+	}
+
+    if ( sum - epsilon <= buffer && sum + epsilon >= buffer ) {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+unsigned long int utils::factorial(unsigned int n) {
+	unsigned long fact = 1;
+	int i;
+
+	for (i = 1; i <= n; i++)
+		fact = fact * i;
+
+	return fact;
+}
+
+float utils::distancePointHyperplane() {
+    /*float //upper part
+
+    return /normVector(planeVec.getCord());*/
+    return -1;
+}
+
+float utils::normVector(Point* Nvector) {
+    std::vector<float> coords = Nvector->getCord();
+    float sum = 0;
+    for (int i = 0 ; i < coords.size() ; i++) {
+        sum += coords[i] * coords[i];
+    }
+
+    return sqrt(sum);
+}
