@@ -124,9 +124,6 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
          float volume4D = volume(vector<Point*>{P, Q, R, S, point});
          float volume3D = volume(vector<Point*>{P, Q, R, S});
          
-         //cout<<"Vol4D"<<volume4D<<endl;
-         //cout<<"Vol3D:"<<volume3D<<endl;
-
          dist = volume4D/volume3D;
 
          if(abs(farthestPoint.first)<abs(dist)){
@@ -250,12 +247,43 @@ float QuickHull4D::volume(vector<Point*>p){
     // Determinant calculation
     det = utils::determinant(matrix, 5);
 
-    float fac=1;
-    for (int i = 1; i <= 4; i++)// 4 is the dimension
-    {
-        fac*=i;
+float QuickHull4D::volume(Point* t1, Point* t2, Point* t3, Point* t4){
+    float det;
+    float matrix[5][5];
+    for(int i=0;i<3;i++){
+        matrix[i][0] = t1->getCord()[i];
+        matrix[i][1] = t2->getCord()[i];
+        matrix[i][2] = t3->getCord()[i];
+        matrix[i][3] = t4->getCord()[i];
     }
 
     return 1.0f/fac * det;// 4! = 24
 }
 
+
+bool QuickHull4D::pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5, Point* p) {
+    float baseVolume;
+    float volumes[5]; //Volumes w.r.t. the point p
+    
+    std::vector<Point*> pointSet;
+    std::vector<Point*> bufferSet;
+
+    pointSet.push_back(t5);
+    pointSet.push_back(t4);
+    pointSet.push_back(t3);
+    pointSet.push_back(t2);
+    pointSet.push_back(t1);
+
+    baseVolume = hyperVolume(t1, t2, t3, t4, t5);
+
+    for (int i = 0; i < 4; i++) {
+        bufferSet = pointSet; //Copying into bufferSet        
+        bufferSet.at(i) =  p;
+        volumes[i] = hyperVolume(bufferSet.at(0),
+                                 bufferSet.at(1),
+                                 bufferSet.at(2),
+                                 bufferSet.at(3),
+                                 bufferSet.at(4));
+    }
+
+}
