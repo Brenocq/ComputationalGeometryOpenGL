@@ -10,6 +10,7 @@ public:
   ~Point();
 
   void draw2D();
+  Point operator-(Point p);
   //----- Setters -----//
   void setPoint(float _x, float _y, float _z=0, float _w=0);
   void setX(float _x);

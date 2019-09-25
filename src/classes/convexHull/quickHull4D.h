@@ -17,9 +17,7 @@ public:
   void sortConvexHull();
 
   bool pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5, Point* p);
-  float hyperVolume(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5);
-  float volume(Point* t1, Point* t2, Point* t3, Point* t4);
-  float determinant(float matrix[5][5], int n);
+  float volume(vector<Point*>p);
 };
 
 #endif// QUICKHULL4D_H

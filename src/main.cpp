@@ -92,6 +92,7 @@ void menuInit(){
     container.addPoint(-0.3,-0.3,-1,-0.3);
     container.addPoint(-0.4,-0.6,-1,-0.2);
     container.addPoint(-0.4,1,1,-0.5);
+    container.addPoint(-0.3,.8,10,10);
 }
 
 void convexHullMenuHandler(int choice) {

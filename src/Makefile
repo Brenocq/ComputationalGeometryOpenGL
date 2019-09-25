@@ -5,6 +5,9 @@ all: build
 
 build: $(Objects) main.o
 
+run: build
+	./run
+
 main.o: main.cpp
 	@g++ main.cpp $(Flags) -o run $(Objects)
 

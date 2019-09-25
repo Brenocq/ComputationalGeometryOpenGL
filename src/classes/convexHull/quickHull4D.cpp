@@ -54,13 +54,28 @@ vector<Point*> QuickHull4D::run(){
       firstPoints.push_back(point);// To draw
     }
 
+    cout<<"\tFirst points: ";
+    for (int j = 0; j < 4; j++)
+    {
+        for (int i = 0; i < 4; i++)
+            cout<<(i==0?"(":"")<<p[j]->getCord()[i]<<(i!=3?",":") ");
+    }
+    cout<<endl;
+
     //----- Divide points in two subsets -----//
     for(auto point : _container->getPoints()){
-        float position = hyperVolume(firstPoints[0], firstPoints[1], firstPoints[2], firstPoints[3], point);
+        float position = volume(vector<Point*>{firstPoints[0], firstPoints[1], firstPoints[2], firstPoints[3], point});
+        
+        cout<<"Volume with ";
+        for (int i = 0; i < 4; i++)
+            cout<<(i==0?"(":"")<<point->getCord()[i]<<(i!=3?",":") ");
+        cout<<"-> "<<position<<endl;
+
+
         // On the line or to one side
-        if(position>0 && abs(position)>0.001){
+        if(position>0 && abs(position)>0.0001){
             S1.push_back(point);
-        }else if(position<0 && abs(position)>0.001){
+        }else if(position<0 && abs(position)>0.0001){
             S2.push_back(point);
         }
     }
@@ -75,8 +90,8 @@ vector<Point*> QuickHull4D::run(){
 void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, Point* S){
     Point* C;
     vector<Point*> S1, S2, S3, S4;
-    cout<<"Qtd points: "<<points.size()<<endl;
-    cout<<"\t Plane point: ";
+    cout<<"-------------\nQtd points: "<<points.size()<<endl;
+    cout<<"\tPlane point: ";
     for (int i = 0; i < 4; i++)
         cout<<(i==0?"(":"")<<P->getCord()[i]<<(i!=3?",":") ");
     for (int i = 0; i < 4; i++)
@@ -86,10 +101,15 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
     for (int i = 0; i < 4; i++)
         cout<<(i==0?"(":"")<<S->getCord()[i]<<(i!=3?",":")\n");
     
-        
+    cout<<"\tPoints Added: ";
+    for(Point* point : points){
+        for (int i = 0; i < 4; i++)
+        cout<<(i==0?"(":"")<<point->getCord()[i]<<(i!=3?",":") ");
+    }
+    cout<<endl;
     
 
-    if(points.size()==0)
+    /*if(points.size()==0)
         return;
 
     pair<float,Point*> farthestPoint;
@@ -101,23 +121,31 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
     for(auto point : points){
          // Calculate distance
          float dist;
-         float volume4D = hyperVolume(P, Q, R, S, point);
-         float volume3D = volume(P, Q, R, S);
+         float volume4D = volume(vector<Point*>{P, Q, R, S, point});
+         float volume3D = volume(vector<Point*>{P, Q, R, S});
          
+         //cout<<"Vol4D"<<volume4D<<endl;
+         //cout<<"Vol3D:"<<volume3D<<endl;
+
          dist = volume4D/volume3D;
 
-         if(farthestPoint.first<dist){
+         if(abs(farthestPoint.first)<abs(dist)){
              farthestPoint.second = point;
              farthestPoint.first = dist;
 
          }
     }
-    cout<<"\tFarthest: "<<farthestPoint.first<<endl;
+    cout<<"\tFarthest: ";
+
+    for (int i = 0; i < 4; i++)
+        cout<<(i==0?"(":"")<<farthestPoint.second->getCord()[i]<<(i!=3?",":")");
+
+    cout<<" -> distance plane:"<<farthestPoint.first<<endl;
     C = farthestPoint.second;
     convexHull.push_back(C);
     C->setColor(0,1,0);
     //---- Calculate subset 1 ----//
-    /*for(auto point : _container->getPoints()){
+    for(auto point : _container->getPoints()){
         float position = (C->x() - P->x()) * (point->y() - P->y()) -
                         (C->y() - P->y()) * (point->x() - P->x());
         // On the line or to one side
@@ -187,74 +215,47 @@ void QuickHull4D::sortConvexHull(){
     }*/
 }
 
-float QuickHull4D::hyperVolume(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5){
+float QuickHull4D::volume(vector<Point*>p){
+    // https://www.mathpages.com/home/kmath664/kmath664.html
+    // Only works for 4d-simplex (4d points)
+
     float det;
     float matrix[5][5];
-    for(int i=0;i<4;i++){
-        matrix[i][0] = t1->getCord()[i];
-        matrix[i][1] = t2->getCord()[i];
-        matrix[i][2] = t3->getCord()[i];
-        matrix[i][3] = t4->getCord()[i];
-        matrix[i][4] = t5->getCord()[i];
+
+    int size  = p.size();
+
+    for (int i = 0; i < size; i++)
+    {
+        matrix[i][0] = 1;
     }
-    for(int i=0;i<5;i++){
-        matrix[4][i] = 1;
+    
+    cout<<endl;
+    for(int i=0;i<size;i++){
+        for(int j=1;j<size;j++){
+            matrix[i][j] = p[i]->getCord()[j-1];
+            cout<<matrix[i][j]<<" ";
+        }
+        cout<<endl;
     }
 
-    // | p1x p2x p3x p4x p5x |
-    // | p1y p2y p3y p4y p5y |
-    // | p1z p2z p3z p4z p5z |
-    // | p1w p2w p3w p4w p5w |
-    // |  1   1   1   1   1  |
+    // Print matrix
+    cout<<endl;
+    for(int i=0;i<size;i++){
+        for(int j=0;j<size;j++){
+            cout<<matrix[i][j]<<" ";
+        }
+        cout<<endl;
+    }
 
     // Determinant calculation
-    det = determinant(matrix, 5);
-    return 1.0f/24 * det;// 4! = 24
-}
+    det = utils::determinant(matrix, 5);
 
-float QuickHull4D::volume(Point* t1, Point* t2, Point* t3, Point* t4){
-    float det;
-    float matrix[5][5];
-    for(int i=0;i<3;i++){
-        matrix[i][0] = t1->getCord()[i];
-        matrix[i][1] = t2->getCord()[i];
-        matrix[i][2] = t3->getCord()[i];
-        matrix[i][3] = t4->getCord()[i];
+    float fac=1;
+    for (int i = 1; i <= 4; i++)// 4 is the dimension
+    {
+        fac*=i;
     }
-    for(int i=0;i<4;i++){
-        matrix[3][i] = 1;
-    }
-    // | p1x p2x p3x p4x |
-    // | p1y p2y p3y p4y |
-    // | p1z p2z p3z p4z |
-    // |  1   1   1   1  |
 
-    // Determinant calculation
-    det = determinant(matrix, 4);
-
-    return 1.0f/6 * det;// 3! = 6
+    return 1.0f/fac * det;// 4! = 24
 }
 
-float QuickHull4D::determinant(float matrix[5][5], int n) {
-   float det = 0;
-   float submatrix[5][5];
-   if (n == 2)
-      return ((matrix[0][0] * matrix[1][1]) - (matrix[1][0] * matrix[0][1]));
-   else {
-      for (int x = 0; x < n; x++) {
-            int subi = 0;
-            for (int i = 1; i < n; i++) {
-               int subj = 0;
-               for (int j = 0; j < n; j++) {
-                  if (j == x)
-                  continue;
-                  submatrix[subi][subj] = matrix[i][j];
-                  subj++;
-               }
-               subi++;
-            }
-            det = det + (pow(-1, x) * matrix[0][x] * determinant( submatrix, n - 1 ));
-      }
-   }
-   return det;
-}
