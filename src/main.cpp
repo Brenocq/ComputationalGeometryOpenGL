@@ -84,15 +84,14 @@ void menuInit(){
     cout<<"Welcome! You can left-click to add points or right-click to select another algorithm.\n";
     cout<<"Graham 2D selected\n";
 
-    container.addPoint(0.5,-0.5,0.5,0.5);
-    container.addPoint(1,0.1,0.1,0.1);
-    container.addPoint(-0.8,-0.1,-0.1,-0.1);
-    container.addPoint(0.2,-0.2,1,-0.2);
-    container.addPoint(0.3,-0.3,1,-0.3);
-    container.addPoint(-0.3,-0.3,-1,-0.3);
-    container.addPoint(-0.4,-0.6,-1,-0.2);
-    container.addPoint(-0.4,1,1,-0.5);
-    container.addPoint(-0.3,.8,10,10);
+    container.addPoint(1,0,0,0);
+    container.addPoint(0,1,0,0);
+    container.addPoint(0,0,1,0);
+    container.addPoint(-1,0,0,0);
+    container.addPoint(1,1,1,10);
+    container.addPoint(1,1,1,5);
+    container.addPoint(1,1,1,-5);
+    container.addPoint(1,1,1,-10);
 }
 
 void convexHullMenuHandler(int choice) {

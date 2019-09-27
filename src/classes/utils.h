@@ -9,9 +9,13 @@ namespace utils{
   float angleTwoPoints(Point *p1, Point *p2);
   float pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3);
   float normVector(Point* Nvector);
+  bool  checkSum(float sum, std::vector<float> vals);
+  unsigned long int factorial(unsigned int n);
+  float distancePointHyperplane();
+  float determinant(float matrix[5][5], int n);
+  float normVector(Point* Nvector);
   bool  checkSum(float sum, float vec[]);
   unsigned long int factorial(unsigned int n);
-  float determinant(float matrix[5][5], int n);
 }
 
-#endif
+#endif// UTILS_H
