@@ -8,9 +8,14 @@ public:
   EdgeFlip();
   ~EdgeFlip();
 
+  void resetTriangulation();
+  void insertPoint(Point* p);
+  void createNewTriangles(int indexTri, Point* p);
+
   vector<Triangle> run();
   void draw();
 private:
+  vector<Point*> _outPoints;
 
 };
 
