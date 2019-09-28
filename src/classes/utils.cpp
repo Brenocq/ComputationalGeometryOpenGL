@@ -20,7 +20,7 @@ float utils::angleTwoPoints(Point *p1, Point *p2){
     return atan2(p1->y() - p2->y(), p1->x() - p2->x());
 }
 
-float utils::pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3){
+bool utils::pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3){
     float d1, d2, d3;
     bool has_neg, has_pos;
 
@@ -34,6 +34,27 @@ float utils::pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3){
     return !(has_neg && has_pos);
 }
 
+vector<float> utils::anglesTriangle(Point *p1, Point *p2, Point *p3){
+  // Only for 2D points
+
+  vector<float> res;
+
+  // Size each side
+  float a = sqrt( pow(p2->x()-p1->x(),2) + pow(p2->y()-p1->y(),2));
+  float b = sqrt( pow(p3->x()-p2->x(),2) + pow(p3->y()-p2->y(),2));
+  float c = sqrt( pow(p1->x()-p3->x(),2) + pow(p1->y()-p3->y(),2));
+
+  // Angles (cosines law)
+  float A = acos(( b*b + c*c - a*a )/( 2*b*c ));
+  float B = acos(( c*c + a*a - b*b )/( 2*a*c ));
+  float C = acos(( a*a + b*b - c*c )/( 2*a*b ));
+
+  res.push_back(A);
+  res.push_back(B);
+  res.push_back(C);
+
+  return res;
+}
 
 float utils::determinant(float matrix[5][5], int n) {
    float det = 0;

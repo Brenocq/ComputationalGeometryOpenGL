@@ -11,6 +11,7 @@ public:
   void resetTriangulation();
   void insertPoint(Point* p);
   void createNewTriangles(int indexTri, Point* p);
+  void turnToGoodTriangles(int indexTri1, int indexTri2);
 
   vector<Triangle> run();
   void draw();

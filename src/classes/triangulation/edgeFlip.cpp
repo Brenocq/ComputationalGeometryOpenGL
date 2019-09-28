@@ -11,13 +11,7 @@
 
 EdgeFlip::EdgeFlip():
 Triangulation()
-{
-  _outPoints.push_back(new Point(-2,-1));
-  _outPoints.push_back(new Point(2,-1));
-  _outPoints.push_back(new Point(0,4));
-  Triangle outTriangle = {_outPoints[0], _outPoints[1], _outPoints[2]};
-  _triangulation.push_back(outTriangle);
-}
+{}
 
 EdgeFlip::~EdgeFlip()
 {}
@@ -38,9 +32,9 @@ vector<Triangle> EdgeFlip::run(){
 
 void EdgeFlip::resetTriangulation(){
   _triangulation.clear();
-  _outPoints.push_back(new Point(-2,-1));
-  _outPoints.push_back(new Point(2,-1));
-  _outPoints.push_back(new Point(0,4));
+  _outPoints.push_back(new Point(-1,-1));
+  _outPoints.push_back(new Point(1,-1));
+  _outPoints.push_back(new Point(0,1));
   Triangle outTriangle = {_outPoints[0], _outPoints[1], _outPoints[2]};
   _triangulation.push_back(outTriangle);
 }
@@ -48,8 +42,7 @@ void EdgeFlip::resetTriangulation(){
 void EdgeFlip::insertPoint(Point* p){
   for(int i=0;i<_triangulation.size();i++){
     Triangle triangle = _triangulation[i];
-    float position = utils::pointInTriangle(p, triangle.a, triangle.b, triangle.c);
-    if(position>=0){
+    if(utils::pointInTriangle(p, triangle.a, triangle.b, triangle.c)){
       createNewTriangles(i, p);
       return;
     }
@@ -66,6 +59,20 @@ void EdgeFlip::createNewTriangles(int indexTri, Point* p){
   _triangulation.push_back(triC);
 
   _triangulation.erase(_triangulation.begin() + indexTri);
+}
+
+void EdgeFlip::turnToGoodTriangles(int indexTri1, int indexTri2){
+  Triangle tri1 = _triangulation[indexTri1];
+  Triangle tri2 = _triangulation[indexTri2];
+
+  vector<float> anglesTri1 = utils::anglesTriangle(tri1.a, tri1.b, tri1.c);
+  vector<float> anglesTri2 = utils::anglesTriangle(tri2.a, tri2.b, tri2.c);
+
+  Triangle tri3, tri4;
+  // Find triangle tri4 and tri3
+  // Calculate angles tri4 and tri3
+  // Compare angles to decide if will flip or not (delete indexTri1, indexTri2 and add new)
+
 }
 
 void EdgeFlip::draw(){

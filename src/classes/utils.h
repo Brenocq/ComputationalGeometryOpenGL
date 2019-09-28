@@ -7,7 +7,8 @@ namespace utils{
   float distancePointLine(Point *pl1, Point *pl2, Point *p);
   float distancePointHyperplane(std::vector<Point*> point, unsigned int dim);
   float angleTwoPoints(Point *p1, Point *p2);
-  float pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3);
+  bool pointInTriangle(Point *p, Point *v1, Point *v2, Point *v3);
+  vector<float> anglesTriangle(Point *p1, Point *p2, Point *p3);
   float normVector(Point* Nvector);
   bool  checkSum(float sum, std::vector<float> vals);
   unsigned long int factorial(unsigned int n);
