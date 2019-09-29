@@ -12,6 +12,8 @@ public:
   virtual vector<Point*> run() = 0;
   virtual void draw() = 0;
 
+  vector<Point*> getConvexHull(){ return convexHull; };
+
 protected:
   Container *_container;
   vector<Point*> convexHull;
