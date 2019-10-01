@@ -31,7 +31,7 @@ vector<Triangle> EdgeFlip::run(){
     flipEdges();
   }
   //----- Erase out points and triangles connected to it -----//
-  //eraseOutPoints();
+  eraseOutPoints();
 
   return _triangulation;
 }
@@ -56,7 +56,7 @@ void EdgeFlip::insertPoint(Point* p){
 }
 
 void EdgeFlip::flipEdges(){
-  int size = int(_triangulation.size());
+  /*int size = int(_triangulation.size());
   Triangle tri1 = _triangulation[size-1];
   Triangle tri2 = _triangulation[size-2];
   Triangle tri3 = _triangulation[size-3];
@@ -73,6 +73,17 @@ void EdgeFlip::flipEdges(){
   for(int i=0;i<size;i++){
     if(triangleSideBySide(tri3, _triangulation[i])){
       if(turnToGoodTriangles(i, size-3))break;
+    }
+  }*/
+
+  //----- Try: brute force -----//
+  bool changed = true;
+  while(changed){
+    changed = false;
+    for (int i = 0; i < int(_triangulation.size()); i++) {
+      for (int j = i+1; j < int(_triangulation.size()); j++) {
+        changed = turnToGoodTriangles(i, j);
+      }
     }
   }
 }
