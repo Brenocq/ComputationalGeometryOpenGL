@@ -9,10 +9,13 @@ public:
   ~EdgeFlip();
 
   void resetTriangulation();
-  void insertPoint(Point* p);
-  void createNewTriangles(int indexTri, Point* p);
+  void insertPoint(Point *p);
+  void flipEdges();
+  void eraseOutPoints();
+  void createNewTriangles(int indexTri, Point *p);
   bool turnToGoodTriangles(int indexTri1, int indexTri2);
   bool triangleSideBySide(Triangle tri1, Triangle tri2);
+  bool triangleHasPoint(Triangle tri, Point *p);
 
   vector<Triangle> run();
   void draw();

@@ -22,31 +22,25 @@ vector<Triangle> EdgeFlip::run(){
     return _triangulation;
   }
 
+  // Reset triangulation vector
   resetTriangulation();
-  //----- Create new triangle with point -----//
+  //----- Create new triangle with each point -----//
   for(auto point : _container->getPoints()){
     insertPoint(point);
+    // For each point added, three triangles are created (one deleted)
+    flipEdges();
   }
-
-  //----- Try: brute force -----//
-  bool changed = true;
-  while(changed){
-    changed = false;
-    for (int i = 0; i < int(_triangulation.size()); i++) {
-      for (int j = i+1; j < int(_triangulation.size()); j++) {
-        changed = turnToGoodTriangles(i, j);
-      }
-    }
-  }
+  //----- Erase out points and triangles connected to it -----//
+  //eraseOutPoints();
 
   return _triangulation;
 }
 
 void EdgeFlip::resetTriangulation(){
   _triangulation.clear();
-  _outPoints.push_back(new Point(-1,-1));
-  _outPoints.push_back(new Point(1,-1));
-  _outPoints.push_back(new Point(0,1));
+  _outPoints.push_back(new Point(-10,-5));
+  _outPoints.push_back(new Point(10,-5));
+  _outPoints.push_back(new Point(0,10));
   Triangle outTriangle = {_outPoints[0], _outPoints[1], _outPoints[2]};
   _triangulation.push_back(outTriangle);
 }
@@ -57,6 +51,39 @@ void EdgeFlip::insertPoint(Point* p){
     if(utils::pointInTriangle(p, triangle.a, triangle.b, triangle.c)){
       createNewTriangles(i, p);
       return;
+    }
+  }
+}
+
+void EdgeFlip::flipEdges(){
+  int size = int(_triangulation.size());
+  Triangle tri1 = _triangulation[size-1];
+  Triangle tri2 = _triangulation[size-2];
+  Triangle tri3 = _triangulation[size-3];
+  for(int i=0;i<size;i++){
+    if(triangleSideBySide(tri1, _triangulation[i])){
+      if(turnToGoodTriangles(i, size-1))break;
+    }
+  }
+  for(int i=0;i<size;i++){
+    if(triangleSideBySide(tri2, _triangulation[i])){
+      if(turnToGoodTriangles(i, size-2))break;
+    }
+  }
+  for(int i=0;i<size;i++){
+    if(triangleSideBySide(tri3, _triangulation[i])){
+      if(turnToGoodTriangles(i, size-3))break;
+    }
+  }
+}
+
+void EdgeFlip::eraseOutPoints(){
+  int size = int(_triangulation.size());
+  for(int i = size-1;i>=0;i--){
+    if(triangleHasPoint(_triangulation[i],_outPoints[0]) ||
+      triangleHasPoint(_triangulation[i],_outPoints[1]) ||
+      triangleHasPoint(_triangulation[i],_outPoints[2])){
+      _triangulation.erase(_triangulation.begin() + i);
     }
   }
 }
@@ -91,14 +118,22 @@ bool EdgeFlip::triangleSideBySide(Triangle tri1, Triangle tri2){
   return commonPoint.size()==2;
 }
 
+bool EdgeFlip::triangleHasPoint(Triangle tri, Point *p){
+  return (tri.a==p || tri.b==p || tri.c==p);
+}
+
 bool EdgeFlip::turnToGoodTriangles(int indexTri1, int indexTri2){
   //Caution! indexTri2 must be grater than indexTri1
+  if(indexTri1>=indexTri2)
+    return false;
+
   Triangle tri1 = _triangulation[indexTri1];
   Triangle tri2 = _triangulation[indexTri2];
 
   // Calculate interior angles of tri1 and tri2
   vector<float> anglesTri1 = utils::anglesTriangle(tri1.a, tri1.b, tri1.c);
   vector<float> anglesTri2 = utils::anglesTriangle(tri2.a, tri2.b, tri2.c);
+
 
   vector<Point*> pointsTri1 = {tri1.a, tri1.b, tri1.c};
   vector<Point*> pointsTri2 = {tri2.a, tri2.b, tri2.c};
@@ -180,10 +215,29 @@ bool EdgeFlip::turnToGoodTriangles(int indexTri1, int indexTri2){
   }
 
   if(minAngle12<minAngle34){
-    _triangulation.erase(_triangulation.begin() + indexTri2);
+    _triangulation[indexTri1].a=tri3.a;
+    _triangulation[indexTri1].b=tri3.b;
+    _triangulation[indexTri1].c=tri3.c;
+
+    _triangulation[indexTri2].a=tri4.a;
+    _triangulation[indexTri2].b=tri4.b;
+    _triangulation[indexTri2].c=tri4.c;
+
+    /*_triangulation.erase(_triangulation.begin() + indexTri2);
     _triangulation.erase(_triangulation.begin() + indexTri1);
     _triangulation.push_back(tri3);
-    _triangulation.push_back(tri4);
+    _triangulation.push_back(tri4);*/
+
+    /*cout<<"Changed Triangle: ";
+    tri1.a->print(2);tri1.b->print(2);tri1.c->print(2);
+    cout<<"+";
+    tri2.a->print(2);tri2.b->print(2);tri2.c->print(2);
+    cout<<"\n\t To: ";
+    tri3.a->print(2);tri3.b->print(2);tri3.c->print(2);
+    cout<<"+";
+    tri4.a->print(2);tri4.b->print(2);tri4.c->print(2);
+    cout<<"\n\tMin Angles: "<<minAngle12<<" and "<<minAngle34<<endl;*/
+
     return true;
   }
   return false;

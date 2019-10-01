@@ -1,6 +1,10 @@
 #include <GL/glut.h>
 #include <math.h>
 #include "point.h"
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
 
 Point::Point(){
     cord = {0,0,0,0};
@@ -23,6 +27,17 @@ void Point::draw2D(){
         glVertex2d( radius*cos(i/180.0*M_PI)+cord[0], radius*sin(i/180.0*M_PI)+cord[1]);
     }
     glEnd();
+}
+
+void Point::print(int dimension){
+  cout<<setprecision(2)<<"(";
+  for(int i=0;i<dimension;i++){
+    cout<<cord[i];
+    if(i<dimension-1)
+      cout<<",";
+  }
+
+  cout<<")";
 }
 
 Point Point::operator-(Point p){
