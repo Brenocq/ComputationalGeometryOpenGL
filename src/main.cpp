@@ -95,16 +95,22 @@ void menuInit(){
     container.addPoint(0,-1.0f/4);*/
 
     // QuickHull 4D (aux points)
-    container.addPoint(   0,   0,   0,   0);
+    /*container.addPoint(   0,   0,   0,   0);
     container.addPoint(-0.1, 0.1,   0,   0);
     container.addPoint(-0.4, 0.1, 0.2,   0);
-    container.addPoint(  -1,   1,  -1,   0);
-    container.addPoint(  -1,  -1,  -1,   0);
+    container.addPoint(  -2,   3,  -1,   0);
+    container.addPoint(  -1,  -2,  -1,   0);
     container.addPoint(   1,   1,  -1,   0);
-    container.addPoint(   1,  -1,  -1,   0);
-    container.addPoint(   0,   0,   2,   0);
+    container.addPoint(   3,  -1,  -2,   0);
+    container.addPoint(   0,   0,   3,   0);
     container.addPoint(   0,   0,   0,  10);
-    container.addPoint(   0,   0,   0, -10);
+    container.addPoint(   0,   0,   0, -10);*/
+    container.addPoint(   1,   0,   0.01,   0);
+    container.addPoint(   0,   1,   0,   0.01);
+    container.addPoint(   -1,   0,   0,   0);
+    container.addPoint(   0,   -1,   0,   0);
+    container.addPoint(   0,   0,   -10,   0);
+
 }
 
 void convexHullMenuHandler(int choice) {

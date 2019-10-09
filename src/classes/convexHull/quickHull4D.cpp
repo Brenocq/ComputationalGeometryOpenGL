@@ -24,6 +24,8 @@ vector<Point*> QuickHull4D::run(){
     if(_container->getPoints().size()<4)
         return convexHull;
 
+    cout << "---------- Calculate Convex Hull ----------\n";
+
     //----- Find min/max points ("left most", "right most")-----//
     p[0] = _container->getPoints()[0];
     p[1] = _container->getPoints()[0];
@@ -32,21 +34,25 @@ vector<Point*> QuickHull4D::run(){
     for(auto point : _container->getPoints()){
         if(point->x()<p[0]->x())
             p[0] = point;
-        if(point->x()>p[1]->x())
+        if(point->y()<p[1]->y())
             p[1] = point;
-        if(point->y()<p[2]->y())
+        if(point->z()>p[2]->z())
             p[2] = point;
-        if(point->y()>p[3]->y())
+        if(point->w()>p[3]->w())
             p[3] = point;
     }
+
     for(auto pointA : p){
       int qtdEqual = 0;
       for(auto pointB : p){
         if(pointA==pointB)
           qtdEqual++;
       }
-      if(qtdEqual>1)
+      if(qtdEqual>1){
         cout<<"[Warning] Same initial point on the QuickHull4D algorithm.\n";
+        return convexHull;
+      }
+
     }
 
     for(auto point : p){
@@ -65,7 +71,7 @@ vector<Point*> QuickHull4D::run(){
     //----- Divide points in two subsets -----//
     for(auto point : _container->getPoints()){
         float position = volume(vector<Point*>{firstPoints[0], firstPoints[1], firstPoints[2], firstPoints[3], point});
-        
+
         cout<<"Volume with ";
         for (int i = 0; i < 4; i++)
             cout<<(i==0?"(":"")<<point->getCord()[i]<<(i!=3?",":") ");
@@ -100,16 +106,16 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
         cout<<(i==0?"(":"")<<R->getCord()[i]<<(i!=3?",":") ");
     for (int i = 0; i < 4; i++)
         cout<<(i==0?"(":"")<<S->getCord()[i]<<(i!=3?",":")\n");
-    
+
     cout<<"\tPoints Added: ";
     for(Point* point : points){
         for (int i = 0; i < 4; i++)
         cout<<(i==0?"(":"")<<point->getCord()[i]<<(i!=3?",":") ");
     }
     cout<<endl;
-    
 
-    /*if(points.size()==0)
+
+    if(points.size()==0)
         return;
 
     pair<float,Point*> farthestPoint;
@@ -121,15 +127,17 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
     for(auto point : points){
          // Calculate distance
          float dist;
-         float volume4D = volume(vector<Point*>{P, Q, R, S, point});
-         float volume3D = volume(vector<Point*>{P, Q, R, S});
-         
-         dist = volume4D/volume3D;
+         dist = distanceToHyperPlane(vector<Point*>{P, Q, R, S}, point);
+
+         cout<<"Distance plane to ";
+         for (int i = 0; i < 4; i++)
+          cout<<(i==0?"(":"")<<point->getCord()[i]<<(i!=3?",":") ");
+
+          cout<<" -> "<<dist<<endl;
 
          if(abs(farthestPoint.first)<abs(dist)){
              farthestPoint.second = point;
              farthestPoint.first = dist;
-
          }
     }
     cout<<"\tFarthest: ";
@@ -138,7 +146,7 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
         cout<<(i==0?"(":"")<<farthestPoint.second->getCord()[i]<<(i!=3?",":")");
 
     cout<<" -> distance plane:"<<farthestPoint.first<<endl;
-    C = farthestPoint.second;
+    /*C = farthestPoint.second;
     convexHull.push_back(C);
     C->setColor(0,1,0);
     //---- Calculate subset 1 ----//
@@ -212,6 +220,30 @@ void QuickHull4D::sortConvexHull(){
     }*/
 }
 
+float QuickHull4D::distanceToHyperPlane(vector<Point*> planePoints, Point* point){
+  Point v1 = *(planePoints[1])- *(planePoints[0]);
+  Point v2 = *(planePoints[2])- *(planePoints[0]);
+  Point v3 = *(planePoints[3])- *(planePoints[0]);
+
+  Point vectorPoint = *point - *(planePoints[0]);
+
+  float i = v1.y()*v2.z()*v3.w() - v1.w()*v2.z()*v3.y();
+  float j = v1.z()*v2.w()*v3.x() - v1.x()*v2.w()*v3.z();
+  float k = v1.w()*v2.x()*v3.y() - v1.y()*v2.x()*v3.w();
+  float l = v1.x()*v2.y()*v3.z() - v3.x()*v2.y()*v1.z();
+
+  float norm = sqrt(i*i + j*j + k*k + l*l);
+  Point normalVec = Point(i/norm, j/norm, k/norm, l/norm);
+
+  // Scalar product (projection)
+  float dist = normalVec.x()*vectorPoint.x() +
+               normalVec.y()*vectorPoint.y() +
+               normalVec.z()*vectorPoint.z() +
+               normalVec.w()*vectorPoint.w();
+
+  return abs(dist);
+}
+
 float QuickHull4D::volume(vector<Point*>p){
     // https://www.mathpages.com/home/kmath664/kmath664.html
     // Only works for 4d-simplex (4d points)
@@ -225,24 +257,21 @@ float QuickHull4D::volume(vector<Point*>p){
     {
         matrix[i][0] = 1;
     }
-    
-    cout<<endl;
+
     for(int i=0;i<size;i++){
         for(int j=1;j<size;j++){
             matrix[i][j] = p[i]->getCord()[j-1];
-            cout<<matrix[i][j]<<" ";
         }
-        cout<<endl;
     }
 
     // Print matrix
-    cout<<endl;
+    /*cout<<endl;
     for(int i=0;i<size;i++){
         for(int j=0;j<size;j++){
             cout<<matrix[i][j]<<" ";
         }
         cout<<endl;
-    }
+    }*/
 
     // Determinant calculation
     det = utils::determinant(matrix, 5);
@@ -252,7 +281,7 @@ float QuickHull4D::volume(vector<Point*>p){
 bool QuickHull4D::pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5, Point* p) {
     float baseVolume;
     float volumes[5]; //Volumes w.r.t. the point p
-    
+
     std::vector<Point*> pointSet;
     std::vector<Point*> bufferSet;
 
@@ -265,7 +294,7 @@ bool QuickHull4D::pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point*
     baseVolume = volume(vector<Point*>{t1, t2, t3, t4, t5});// Changed from hyperVolume to volume
 
     for (int i = 0; i < 4; i++) {
-        bufferSet = pointSet; //Copying into bufferSet        
+        bufferSet = pointSet; //Copying into bufferSet
         bufferSet.at(i) =  p;
         volumes[i] = volume(vector<Point*>{
                                 bufferSet.at(0),
