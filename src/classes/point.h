@@ -20,8 +20,10 @@ public:
   void setZ(float _z);
   void setW(float _w);
   void setColor(float r, float g, float b);
+  void setID(int _ID);
   //----- Getters -----//
   vector<float> getCord();
+  int getID();
   float x();
   float y();
   float z();
@@ -31,6 +33,7 @@ private:
   vector<float> cord;
   float radius;
   vector<float> color;
+  int ID;
 };
 
 

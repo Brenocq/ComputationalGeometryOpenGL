@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <algorithm>
+#include <iomanip>
 #include "../utils.h"
 
 QuickHull4D::QuickHull4D():
@@ -25,6 +26,7 @@ vector<Point*> QuickHull4D::run(){
         return convexHull;
 
     cout << "---------- Calculate Convex Hull ----------\n";
+    cout << setprecision(2);
 
     //----- Find min/max points ("left most", "right most")-----//
     p[0] = _container->getPoints()[0];
@@ -34,11 +36,11 @@ vector<Point*> QuickHull4D::run(){
     for(auto point : _container->getPoints()){
         if(point->x()<p[0]->x())
             p[0] = point;
-        if(point->y()<p[1]->y())
+        if(point->x()>p[1]->x())
             p[1] = point;
-        if(point->z()>p[2]->z())
+        if(point->y()<p[2]->y())
             p[2] = point;
-        if(point->w()>p[3]->w())
+        if(point->y()>p[3]->y())
             p[3] = point;
     }
 
@@ -70,9 +72,9 @@ vector<Point*> QuickHull4D::run(){
 
     //----- Divide points in two subsets -----//
     for(auto point : _container->getPoints()){
-        float position = volume(vector<Point*>{firstPoints[0], firstPoints[1], firstPoints[2], firstPoints[3], point});
+        float position = usePlaneEquation(vector<Point*>{p[0], p[1], p[2], p[3]}, point);
 
-        cout<<"Volume with ";
+        cout<<"Position with ";
         for (int i = 0; i < 4; i++)
             cout<<(i==0?"(":"")<<point->getCord()[i]<<(i!=3?",":") ");
         cout<<"-> "<<position<<endl;
@@ -87,7 +89,9 @@ vector<Point*> QuickHull4D::run(){
     }
 
     //----- Divide points in for subsets -----//
+    cout<<"\n------------- FIND HULL S1 -------------\n";
     findHull(S1, p[0], p[1], p[2], p[3]);
+    cout<<"\n------------- FIND HULL S2 -------------\n";
     findHull(S2, p[3], p[2], p[1], p[0]);
 
     return convexHull;
@@ -96,7 +100,7 @@ vector<Point*> QuickHull4D::run(){
 void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, Point* S){
     Point* C;
     vector<Point*> S1, S2, S3, S4;
-    cout<<"-------------\nQtd points: "<<points.size()<<endl;
+    cout<<"\n-------------\nQtd points: "<<points.size()<<endl;
     cout<<"\tPlane point: ";
     for (int i = 0; i < 4; i++)
         cout<<(i==0?"(":"")<<P->getCord()[i]<<(i!=3?",":") ");
@@ -127,7 +131,7 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
     for(auto point : points){
          // Calculate distance
          float dist;
-         dist = distanceToHyperPlane(vector<Point*>{P, Q, R, S}, point);
+         dist = abs(distanceToHyperPlane(vector<Point*>{P, Q, R, S}, point));
 
          cout<<"Distance plane to ";
          for (int i = 0; i < 4; i++)
@@ -146,29 +150,46 @@ void QuickHull4D::findHull(vector<Point*> points, Point* P, Point* Q, Point* R, 
         cout<<(i==0?"(":"")<<farthestPoint.second->getCord()[i]<<(i!=3?",":")");
 
     cout<<" -> distance plane:"<<farthestPoint.first<<endl;
-    /*C = farthestPoint.second;
+    C = farthestPoint.second;
     convexHull.push_back(C);
-    C->setColor(0,1,0);
-    //---- Calculate subset 1 ----//
-    for(auto point : _container->getPoints()){
-        float position = (C->x() - P->x()) * (point->y() - P->y()) -
-                        (C->y() - P->y()) * (point->x() - P->x());
-        // On the line or to one side
-        if(position>0){
-            S1.push_back(point);
-        }
-    }
-    //---- Calculate subset 2 ----//
-    for(auto point : _container->getPoints()){
-        float position = (Q->x() - C->x()) * (point->y() - C->y()) -
-                        (Q->y() - C->y()) * (point->x() - C->x());
-        // On the line or to one side
-        if(position>0){
+
+    float position=0;
+
+    for(auto point : points){
+
+      //---- Calculate subset 1 ----//
+      position = usePlaneEquation(vector<Point*>{C, Q, R, S}, point);
+      if(position>0 && abs(position)>0.0001){
+          S1.push_back(point);
+      }else{
+        //---- Calculate subset 2 ----//
+        position = usePlaneEquation(vector<Point*>{P, C, R, S}, point);
+        if(position>0 && abs(position)>0.0001){
             S2.push_back(point);
+        }else{
+          //---- Calculate subset 3 ----//
+          position = usePlaneEquation(vector<Point*>{P, Q, C, S}, point);
+          if(position>0 && abs(position)>0.0001){
+              S3.push_back(point);
+          }else{
+            //---- Calculate subset 4 ----//
+            position = usePlaneEquation(vector<Point*>{P, Q, R, C}, point);
+            if(position>0 && abs(position)>0.0001){
+                S4.push_back(point);
+            }
+          }
         }
+      }
     }
-    findHull(S1, P, C);
-    findHull(S2, C, Q);*/
+
+    cout<<"C, Q, R, S";
+    findHull(S1, C, Q, R, S);
+    cout<<"P, C, R, S";
+    findHull(S2, P, C, R, S);
+    cout<<"P, Q, C, S";
+    findHull(S3, P, Q, C, S);
+    cout<<"P, Q, R, C";
+    findHull(S4, P, Q, R, C);
 }
 
 void QuickHull4D::draw(){
@@ -204,26 +225,10 @@ void QuickHull4D::draw(){
     firstPointsB->setColor(1,0,0);*/
 }
 
-void QuickHull4D::sortConvexHull(){
-    /*vector<pair<float,Point*>> sortedAngles;
-    vector<Point*> sortedPoints;
-
-    for(auto point : convexHull){
-        float angle = atan2(convexHull[0]->y()-point->y(),(convexHull[0]->x()-point->x()));
-        sortedAngles.push_back(make_pair(angle, point));
-    }
-    sort(sortedAngles.begin(), sortedAngles.end());
-
-    convexHull.clear();
-    for(auto pointPair : sortedAngles){
-      convexHull.push_back(pointPair.second);
-    }*/
-}
-
 float QuickHull4D::distanceToHyperPlane(vector<Point*> planePoints, Point* point){
   Point v1 = *(planePoints[1])- *(planePoints[0]);
-  Point v2 = *(planePoints[2])- *(planePoints[0]);
-  Point v3 = *(planePoints[3])- *(planePoints[0]);
+  Point v2 = *(planePoints[2])- *(planePoints[1]);
+  Point v3 = *(planePoints[3])- *(planePoints[2]);
 
   Point vectorPoint = *point - *(planePoints[0]);
 
@@ -233,6 +238,10 @@ float QuickHull4D::distanceToHyperPlane(vector<Point*> planePoints, Point* point
   float l = v1.x()*v2.y()*v3.z() - v3.x()*v2.y()*v1.z();
 
   float norm = sqrt(i*i + j*j + k*k + l*l);
+
+  if(norm==0)
+    return 0;
+
   Point normalVec = Point(i/norm, j/norm, k/norm, l/norm);
 
   // Scalar product (projection)
@@ -241,41 +250,56 @@ float QuickHull4D::distanceToHyperPlane(vector<Point*> planePoints, Point* point
                normalVec.z()*vectorPoint.z() +
                normalVec.w()*vectorPoint.w();
 
-  return abs(dist);
+  return dist;
+}
+
+float QuickHull4D::usePlaneEquation(vector<Point*>planePoints, Point* point){
+  Point v1 = *(planePoints[1])- *(planePoints[0]);
+  Point v2 = *(planePoints[2])- *(planePoints[0]);
+  Point v3 = *(planePoints[3])- *(planePoints[0]);
+
+  float i = v1.y()*v2.z()*v3.w() - v1.w()*v2.z()*v3.y();
+  float j = v1.z()*v2.w()*v3.x() - v1.x()*v2.w()*v3.z();
+  float k = v1.w()*v2.x()*v3.y() - v1.y()*v2.x()*v3.w();
+  float l = v1.x()*v2.y()*v3.z() - v3.x()*v2.y()*v1.z();
+
+  float dot1 = utils::dotProduct(&v1,new Point(i,j,k,l));
+  float dot2 = utils::dotProduct(&v2,new Point(i,j,k,l));
+  float dot3 = utils::dotProduct(&v3,new Point(i,j,k,l));
+
+  cout << "Dots: "<<dot1<<" "<<dot2<<" "<<dot3<<endl;
+
+  // Calculate points position with plane equation
+  return i*(point->x()-planePoints[0]->x()) +
+         j*(point->y()-planePoints[0]->y()) +
+         k*(point->z()-planePoints[0]->z()) +
+         l*(point->w()-planePoints[0]->w());
 }
 
 float QuickHull4D::volume(vector<Point*>p){
     // https://www.mathpages.com/home/kmath664/kmath664.html
     // Only works for 4d-simplex (4d points)
+    // I am not sure this is working...
 
     float det;
     float matrix[5][5];
 
-    int size  = p.size();
+    vector<Point> vectors;
+    vectors.push_back(*(p[1])-*(p[0]));
+    vectors.push_back(*(p[2])-*(p[0]));
+    vectors.push_back(*(p[3])-*(p[0]));
+    vectors.push_back(*(p[4])-*(p[0]));
 
-    for (int i = 0; i < size; i++)
-    {
-        matrix[i][0] = 1;
+    int size  = vectors.size();
+
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        matrix[i][j]=vectors[i].getCord()[j];
+      }
     }
-
-    for(int i=0;i<size;i++){
-        for(int j=1;j<size;j++){
-            matrix[i][j] = p[i]->getCord()[j-1];
-        }
-    }
-
-    // Print matrix
-    /*cout<<endl;
-    for(int i=0;i<size;i++){
-        for(int j=0;j<size;j++){
-            cout<<matrix[i][j]<<" ";
-        }
-        cout<<endl;
-    }*/
 
     // Determinant calculation
-    det = utils::determinant(matrix, 5);
-
+    det = utils::determinant(matrix, 4);
 }
 
 bool QuickHull4D::pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point* t5, Point* p) {
@@ -303,5 +327,4 @@ bool QuickHull4D::pointInside(Point* t1, Point* t2, Point* t3, Point* t4, Point*
                                 bufferSet.at(3),
                                 bufferSet.at(4)});
     }
-
 }

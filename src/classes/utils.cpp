@@ -7,6 +7,10 @@ float utils::crossProduct(Point *p1, Point *p2, Point *p3){
   return (p2->x() - p1->x())*(p3->y() - p1->y()) - (p3->x() - p1->x())*(p2->y() - p1->y());
 }
 
+float utils::dotProduct(Point *p1, Point *p2){
+  return p1->x()*p2->x() + p1->y()*p2->y() + p1->z()*p2->z() + p1->w()*p2->w();
+}
+
 float utils::distancePointLine(Point *pl1, Point *pl2, Point *p){
     float a,b,c;
     a = pl1->y() - pl2->y();
