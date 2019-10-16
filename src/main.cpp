@@ -23,6 +23,8 @@ using namespace std;
 
 //----- Algorithms -----//
 int currAlg;
+
+#define CLEANPOINTS -1
 // [0-9] -> ConvexHull
 #define GRAHAM_2D 0
 #define QUICKHULL_2D 1
@@ -41,7 +43,7 @@ void draw();
 void timer(int);
 void mouse(int button, int state, int x, int y);
 void menuInit();
-void mainMenuHandler(int choice){}
+void mainMenuHandler(int choice);
 void convexHullMenuHandler(int choice);
 void triangulationMenuHandler(int choice);
 
@@ -80,24 +82,19 @@ void menuInit(){
     glutCreateMenu(mainMenuHandler);
     glutAddSubMenu("ConvexHull", convexHullSubMenu);
     glutAddSubMenu("Triangulation", triangulationSubMenu);
+    glutAddMenuEntry("Clean points", CLEANPOINTS);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     cout<<"Welcome! You can left-click to add points or right-click to select another algorithm.\n";
     cout<<"Graham 2D selected\n";
 
-    // QuickHull 4D (aux points)
-    /*container.addPoint(   0,   0,   0,   0);
-    container.addPoint(-0.1, 0.1,   0,   0);
-    container.addPoint(-0.4, 0.1, 0.2,   0);
-    container.addPoint(  -2,   0,  -1,   0);
-    container.addPoint(  -1,  -2,  -1,   0);
-    container.addPoint(   1,   3,  -1,   0);
-    container.addPoint(   3,  -1,  -2,   0);
-    container.addPoint(   0,   0,   3,   0);
-    container.addPoint(   0,   0,   0,  10);
-    container.addPoint(   0,   0,   0, -10);*/
+    /*
+    *
+    * 4D data with answer
+    *
+    */
 
-   container.addPoint(0.6443,    0.0855,    0.0305,    0.1734);
+   /*container.addPoint(0.6443,    0.0855,    0.0305,    0.1734);
    container.addPoint(0.3786,    0.2625,    0.7441,    0.3909);
    container.addPoint(0.8116,    0.8010,    0.5000,    0.8314);
    container.addPoint(0.5328,    0.0292,    0.4799,    0.8034);
@@ -136,7 +133,7 @@ void menuInit(){
    container.addPoint(0.2967,    0.8909,    0.4324,    0.1781);
    container.addPoint(0.3188,    0.3342,    0.8253,    0.1280);
    container.addPoint(0.4242,    0.6987,    0.0835,    0.9991);
-   container.addPoint(0.5079,    0.1978,    0.1332,    0.1711);
+   container.addPoint(0.5079,    0.1978,    0.1332,    0.1711);*/
 
    /*RES
      1
@@ -173,6 +170,12 @@ void menuInit(){
     for (int i = 0; i < container.getPoints().size(); i++) {
       container.getPoints()[i]->setID(i+1);
     }
+}
+
+void mainMenuHandler(int choice){
+  if(CLEANPOINTS){
+    container.cleanPoints();
+  }
 }
 
 void convexHullMenuHandler(int choice) {
